@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping List</title>
+</head>
+<body>
+  <form id="shoppingForm">
+    <input type="text" id="product-name" placeholder="Product Name" required />
+    <input type="number" id="product-quantity" placeholder="Product Quantity" min="1" required />
+    <button type="submit">Add Product</button>
+  </form>
+  <ul id="product-container"></ul>
+
+  <script>
+    // When the document is fully loaded, attach the event listener and display any stored products.
+    document.addEventListener('DOMContentLoaded', () => {
+      displayStoredProducts();
+      const form = document.getElementById('shoppingForm');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent the form from reloading the page.
+        addProduct();
+      });
+    });
+
+    // Adds a new product to the shopping list.
+    const addProduct = () => {
+      const productField = document.getElementById("product-name");
+      const quantityField = document.getElementById("product-quantity");
+      const product = productField.value.trim();
+      const quantityInput = quantityField.value.trim();
+
+      // Validation: Check both fields have data.
+      if (!product || !quantityInput) {
+        alert("Please enter both a product name and quantity.");
+        return;
+      }
+      
+      // Validate that the quantity is a number greater than zero.
+      const quantity = Number(quantityInput);
+      if (isNaN(quantity) || quantity <= 0) {
+        alert("Please enter a valid quantity (number greater than 0).");
+        return;
+      }
+
+      // Save to localStorage and display the product on the page.
+      saveProductToLocalStorage(product, quantity);
+      displayProduct(product, quantity);
+
+      // Clear fields for better user experience.
+      productField.value = "";
+      quantityField.value = "";
+      productField.focus();
+    };
+
+    // Displays a single product on the screen.
+    const displayProduct = (product, quantity) => {
+      const ul = document.getElementById("product-container");
+      const li = document.createElement("li");
+      li.textContent = `${product}: ${quantity}`;
+      ul.appendChild(li);
+    };
+
+    // Loads any stored products from localStorage and displays them.
+    const displayStoredProducts = () => {
+      const cart = getStoredShoppingCart();
+      for (const [product, quantity] of Object.entries(cart)) {
+        displayProduct(product, quantity);
+      }
+    };
+
+    // Retrieves the shopping cart from localStorage.
+    const getStoredShoppingCart = () => {
+      const storedCart = localStorage.getItem('cart');
+      return storedCart ? JSON.parse(storedCart) : {};
+    };
+
+    // Saves a new product to localStorage.
+    const saveProductToLocalStorage = (product, quantity) => {
+      const cart = getStoredShoppingCart();
+      cart[product] = quantity;
+      localStorage.setItem('cart', JSON.stringify(cart));
+    };
+  </script>
+</body>
+</html>
